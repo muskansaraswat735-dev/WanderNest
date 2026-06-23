@@ -10,22 +10,15 @@ import { doc, setDoc } from "firebase/firestore";
 function Signup({ setShowSignup }) {
 
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const[fullname, setFullName]=useState("");
-  const[phone, setPhone]=("");
-
+const [password, setPassword] = useState("");
+const [fullName, setFullName] = useState("");
+const [phone, setPhone] = useState("");
   const handleSignup = async () => {
 
-    if (
-      !fullName||
-      !phone||
-      !email ||
-      !password
-       
-    ) {
-      alert("Please fill all fields");
-      return;
-    }
+    if (!fullName || !phone || !email || !password) {
+  alert("Please fill all fields");
+  return;
+}
 
     try {
 
