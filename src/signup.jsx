@@ -32,7 +32,7 @@ const [phone, setPhone] = useState("");
       const user = userCredential.user;
 
       await setDoc(doc(db, "users", user.uid), {
-        fullname,
+        fullname: fullName,
         phone,
         email,
         
