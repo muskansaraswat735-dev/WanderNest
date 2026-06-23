@@ -11,11 +11,11 @@ function Signup({ setShowSignup }) {
 
   const [email, setEmail] = useState("");
 const [password, setPassword] = useState("");
-const [fullName, setFullName] = useState("");
+ const [fullName, setFullName] = useState("");
 const [phone, setPhone] = useState("");
   const handleSignup = async () => {
 
-    if (!fullName || !phone || !email || !password) {
+if (!fullName || !phone || !email || !password)  {
   alert("Please fill all fields");
   return;
 }
@@ -32,7 +32,7 @@ const [phone, setPhone] = useState("");
       const user = userCredential.user;
 
       await setDoc(doc(db, "users", user.uid), {
-        fullname: fullName,
+        fullName,
         phone,
         email,
         
