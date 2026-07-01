@@ -1,18 +1,19 @@
 import {
-ArrowLeft,
-Home
+  ArrowLeft,
+  Home
 } from "lucide-react";
+
 import { useState } from "react";
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
-import { db } from "./firebase";
+
+import { db, auth } from "./firebase";
 
 import {
   collection,
   addDoc,
   serverTimestamp
 } from "firebase/firestore";
-
 
 function Payment({
  bookingData,
@@ -62,6 +63,59 @@ const transactionId =
 
 const bookingId =
 "BK" + Math.floor(Math.random()*100000);
+const saveBooking = async () => {
+
+  try {
+
+    await addDoc(collection(db, "bookings"), {
+
+      userId: auth.currentUser.uid,
+
+      bookingId: bookingId,
+
+      transactionId: transactionId,
+
+      destination:
+        bookingData.destination?.name,
+
+      fromCity:
+        bookingData.fromCity,
+
+      hotel:
+        bookingData.selectedHotel?.name,
+
+      transport:
+        bookingData.transportMode,
+
+      travelers:
+        bookingData.travelers,
+
+      amount:
+        bookingData.grandTotal,
+
+      checkIn:
+        bookingData.checkIn,
+
+      checkOut:
+        bookingData.checkOut,
+
+      travellerDetails:
+        bookingData.travellerDetails,
+
+      createdAt:
+        serverTimestamp(),
+
+    });
+
+    console.log("Booking Saved Successfully ✅");
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+
+};
 const downloadTicket = async () => {
   const doc = new jsPDF();
 
@@ -737,9 +791,14 @@ Amount :
 </div>
 
 <button
-onClick={() => {
-  downloadTicket();
-setShowFeedback(true);
+onClick={async () => {
+
+  await saveBooking();
+
+  await downloadTicket();
+
+  setShowFeedback(true);
+
 }}
 className="
 mt-6
