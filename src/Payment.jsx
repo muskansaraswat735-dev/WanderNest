@@ -5,6 +5,13 @@ Home
 import { useState } from "react";
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
+import { db } from "./firebase";
+
+import {
+  collection,
+  addDoc,
+  serverTimestamp
+} from "firebase/firestore";
 
 
 function Payment({
@@ -16,8 +23,21 @@ function Payment({
  setShowPaymentPreview
 }) {
 
-  const [showFeedback,setShowFeedback] =
+const [showFeedback,setShowFeedback] =
 useState(false);
+ const [rating, setRating] = useState(0);
+
+const [hover, setHover] = useState(0);
+
+const [feedback, setFeedback] = useState("");
+
+const ratingText = {
+  1: "Poor 😞",
+  2: "Fair 😕",
+  3: "Good 🙂",
+  4: "Very Good 😄",
+  5: "Excellent 🤩",
+};
 
 const [cardNumber, setCardNumber] =
 useState("");
@@ -443,6 +463,47 @@ doc.text(
 
   doc.save("WanderNest-Ticket.pdf");
 };
+
+const submitFeedback = async () => {
+
+  if (rating === 0) {
+    alert("Please give a star rating ⭐");
+    return;
+  }
+
+  try {
+
+    await addDoc(
+      collection(db, "feedback"),
+      {
+        bookingId: bookingId,
+        destination: bookingData.destination?.name,
+        rating: rating,
+        feedback: feedback,
+        amount: bookingData.grandTotal,
+        createdAt: serverTimestamp(),
+      }
+    );
+
+    alert("Thank You For Feedback ❤️");
+
+    setShowFeedback(false);
+
+    setShowPayment(false);
+    setShowPaymentPreview(false);
+    setShowBooking(false);
+    setShowDestination(false);
+    setShowExplore(false);
+
+  } catch (error) {
+
+    console.log(error);
+
+    alert("Feedback save failed");
+
+  }
+
+};
 return (
 
 <div className="min-h-screen bg-black text-white p-10">
@@ -715,41 +776,47 @@ w-[500px]
 ⭐ Rate Your Experience
 </h2>
 
+<div className="flex justify-center gap-2 text-5xl mb-5">
+  {[1,2,3,4,5].map((star) => (
+    <span
+      key={star}
+      className={`cursor-pointer transition ${
+        (hover || rating) >= star
+          ? "text-yellow-400"
+          : "text-gray-300"
+      }`}
+      onMouseEnter={() => setHover(star)}
+      onMouseLeave={() => setHover(0)}
+      onClick={() => setRating(star)}
+    >
+      ★
+    </span>
+  ))}
+</div>
+
+<p className="text-center text-xl font-semibold mb-5">
+  {rating > 0 ? ratingText[rating] : "Select your rating"}
+</p>
+
 <textarea
-placeholder="Write your feedback..."
-className="
-w-full
-border
-p-4
-rounded-xl
-h-32
-"
+  value={feedback}
+  onChange={(e) => setFeedback(e.target.value)}
+  placeholder="Write feedback (Optional)"
+  className="w-full border rounded-xl p-4 h-32 mb-5"
 />
 
 <button
-className="
-mt-5
-w-full
-bg-green-500
-text-white
-py-3
-rounded-xl
-"
-onClick={() => {
-
-  alert("Thank You For Feedback ❤️");
-
-  setShowFeedback(false);
-
-  setShowPayment(false);
-  setShowPaymentPreview(false);
-  setShowBooking(false);
-  setShowDestination(false);
-  setShowExplore(false);
-
-}}
+  className="
+  mt-5
+  w-full
+  bg-green-500
+  text-white
+  py-3
+  rounded-xl
+  "
+  onClick={submitFeedback}
 >
-Submit Feedback
+  Submit Feedback
 </button>
 
 </div>
